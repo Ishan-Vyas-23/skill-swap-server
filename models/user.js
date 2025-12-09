@@ -19,6 +19,14 @@ const userSchema = new mongoose.Schema({
     required: true,
     minlength: 6,
   },
+  likesCount: {
+    type: Number,
+    default: 0,
+  },
+  dislikesCount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("User", userSchema);
