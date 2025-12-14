@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const Skills = require("../models/skills");
-const user = require("../models/user");
 const Swap = require("../models/swap");
 const Reviews = require("../models/reviews");
+const user = require("../models/user");
 
 const getAllSkills = async (req, res) => {
   try {
@@ -33,11 +33,31 @@ const getSkill = async (req, res) => {
 
 const userSkills = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { email } = req.params;
 
-    const obj = await Skills.find({ user: id });
+    const targetUser = await user
+      .findOne({ email: email })
+      .select("_id username likesCount dislikesCount");
 
-    return res.status(200).json({ obj });
+    if (!targetUser) {
+      return res.status(404).json({ message: "user not found" });
+    }
+    const targetUserSkills = await Skills.find({ user: targetUser.id });
+    const targetReviews = await Reviews.find({
+      targetID: targetUser.id,
+      message: { $ne: "" },
+    })
+      .populate("reviewerID", "username")
+      .populate("skillID", "skill")
+      .sort({ createdAt: -1 });
+
+    return res
+      .status(200)
+      .json({
+        user: targetUser,
+        skills: targetUserSkills,
+        reviews: targetReviews,
+      });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });

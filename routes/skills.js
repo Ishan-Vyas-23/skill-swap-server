@@ -19,13 +19,15 @@ const {
 const authenticationMiddleware = require("../middleware/authentication");
 
 router.route("/").get(getAllSkills).post(authenticationMiddleware, createSkill);
+router
+  .route("/get-user-profile/:email")
+  .get(authenticationMiddleware, userSkills);
 
 router
   .route("/:id")
   .get(getSkill)
   .patch(authenticationMiddleware, updateSkill)
   .delete(authenticationMiddleware, deleteSkill);
-
 router.route("/swap/:id").patch(authenticationMiddleware, updateSwap);
 router.route("/swap/:id/accept").patch(authenticationMiddleware, acceptSwap);
 router.route("/swap/:id/reject").patch(authenticationMiddleware, rejectSwap);

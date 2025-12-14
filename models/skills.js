@@ -32,6 +32,7 @@ const skillsSchema = new mongoose.Schema(
     portfolio: {
       type: String,
       required: true,
+      default: "NA",
     },
     swap: {
       type: Number,

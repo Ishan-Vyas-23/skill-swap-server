@@ -3,6 +3,15 @@ const User = require("../models/user");
 const Reviews = require("../models/reviews");
 const Swap = require("../models/swap");
 
+const recomputeCounts = async (targetID) => {
+  const reviews = await Reviews.find({ targetID });
+
+  const likes = reviews.filter((r) => r.rating === "like").length;
+  const dislikes = reviews.filter((r) => r.rating === "dislike").length;
+
+  return { likes, dislikes };
+};
+
 const like = async (req, res) => {
   try {
     const { userID } = req.user;
@@ -53,12 +62,9 @@ const like = async (req, res) => {
       statusCode = 201;
     }
 
-    if (!prevRating) {
-      targetUser.likesCount += 1;
-    } else if (prevRating == "dislike") {
-      targetUser.likesCount += 1;
-      targetUser.dislikesCount -= 1;
-    }
+    const { likes, dislikes } = await recomputeCounts(targetID);
+    targetUser.likesCount = likes;
+    targetUser.dislikesCount = dislikes;
 
     await targetUser.save();
 
@@ -119,13 +125,9 @@ const dislike = async (req, res) => {
       statusCode = 201;
     }
 
-    if (!prevRating) {
-      targetUser.dislikesCount += 1;
-    } else if (prevRating == "like") {
-      targetUser.likesCount -= 1;
-      targetUser.dislikesCount += 1;
-    }
-
+    const { likes, dislikes } = await recomputeCounts(targetID);
+    targetUser.likesCount = likes;
+    targetUser.dislikesCount = dislikes;
     await targetUser.save();
 
     return res.status(statusCode).json({ review });
