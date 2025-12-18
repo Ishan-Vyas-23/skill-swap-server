@@ -14,11 +14,7 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 
 app.use(express.json());
-app.use(
-  cors({
-    origin: "*",
-  })
-);
+app.use(cors({ origin: "*" }));
 
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/skills", skillsRoutes);
@@ -26,7 +22,7 @@ app.use("/api/v1/reviews", reviewRoutes);
 app.use("/api/v1/conversation", conversationRoutes);
 app.use("/api/v1/message", messageRoutes);
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
 
