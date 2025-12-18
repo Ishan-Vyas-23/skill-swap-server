@@ -4,6 +4,8 @@ require("dotenv").config(); // Load environment variables from .env file
 const userRoutes = require("./routes/user");
 const skillsRoutes = require("./routes/skills");
 const reviewRoutes = require("./routes/reviews");
+const conversationRoutes = require("./routes/conversation");
+const messageRoutes = require("./routes/message");
 const cors = require("cors");
 
 const PORT = process.env.PORT || 3000;
@@ -18,6 +20,8 @@ app.use(
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/skills", skillsRoutes);
 app.use("/api/v1/reviews", reviewRoutes);
+app.use("/api/v1/conversation", conversationRoutes);
+app.use("/api/v1/message", messageRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI_SKILLSWAP, {

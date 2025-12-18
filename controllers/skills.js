@@ -3,6 +3,7 @@ const Skills = require("../models/skills");
 const Swap = require("../models/swap");
 const Reviews = require("../models/reviews");
 const user = require("../models/user");
+const { ensureConversation } = require("../services/conversationService");
 
 const getAllSkills = async (req, res) => {
   try {
@@ -51,13 +52,11 @@ const userSkills = async (req, res) => {
       .populate("skillID", "skill")
       .sort({ createdAt: -1 });
 
-    return res
-      .status(200)
-      .json({
-        user: targetUser,
-        skills: targetUserSkills,
-        reviews: targetReviews,
-      });
+    return res.status(200).json({
+      user: targetUser,
+      skills: targetUserSkills,
+      reviews: targetReviews,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });
@@ -225,6 +224,11 @@ const acceptSwap = async (req, res) => {
     swap.status = "accepted";
 
     await swap.save();
+
+    await ensureConversation(
+      swap.initiatorID.toString(),
+      swap.targetID.toString()
+    );
 
     const updatedSwap = await Swap.findById(id)
       .populate("initiatorID", "username email")
