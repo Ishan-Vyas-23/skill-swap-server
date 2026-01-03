@@ -1,16 +1,18 @@
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT),
+  secure: false,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
 });
 
 const sendOTPEmail = async (to, otp) => {
   await transporter.sendMail({
-    from: `"Skill Swap" <${process.env.EMAIL_USER}>`,
+    from: process.env.EMAIL_FROM,
     to,
     subject: "Verify your Skill Swap account",
     text: `Your verification code is ${otp}. It is valid for 10 minutes.`,
