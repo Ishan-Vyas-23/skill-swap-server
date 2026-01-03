@@ -17,6 +17,11 @@ app.use(
     origin: "*",
   })
 );
+
+app.get("/health", (req, res) => {
+  res.status(200).send("ok");
+});
+
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/skills", skillsRoutes);
 app.use("/api/v1/reviews", reviewRoutes);
