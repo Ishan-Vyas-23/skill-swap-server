@@ -1,21 +1,17 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendOTPEmail = async (to, otp) => {
-  await transporter.sendMail({
-    from: process.env.EMAIL_FROM,
+  await resend.emails.send({
+    from: "Skill Swap <onboarding@resend.dev>",
     to,
     subject: "Verify your Skill Swap account",
-    text: `Your verification code is ${otp}. It is valid for 10 minutes.`,
+    html: `
+      <p>Your verification code is:</p>
+      <h2>${otp}</h2>
+      <p>This code is valid for 10 minutes.</p>
+    `,
   });
 };
 
