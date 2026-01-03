@@ -10,6 +10,7 @@ const {
   deleteSkill,
   updateSwap,
   getIncomingRequest,
+  getIncomingRequestCount,
   fetchInitiatorSkills,
   acceptSwap,
   rejectSwap,
@@ -36,6 +37,9 @@ router.route("/swap/mutuals").get(authenticationMiddleware, getMutuals);
 router
   .route("/requests/fetch")
   .get(authenticationMiddleware, getIncomingRequest);
+router
+  .route("/requests/fetch-count")
+  .get(authenticationMiddleware, getIncomingRequestCount);
 router
   .route("/request/fetch/:id")
   .get(authenticationMiddleware, fetchInitiatorSkills);

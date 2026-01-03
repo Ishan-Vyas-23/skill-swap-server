@@ -19,14 +19,12 @@ const userSchema = new mongoose.Schema({
     required: true,
     minlength: 6,
   },
-  likesCount: {
-    type: Number,
-    default: 0,
+  isVerified: {
+    type: Boolean,
+    default: false,
   },
-  dislikesCount: {
-    type: Number,
-    default: 0,
-  },
+  otp: String,
+  otpExpiresAt: Date,
 });
 
 module.exports = mongoose.model("User", userSchema);

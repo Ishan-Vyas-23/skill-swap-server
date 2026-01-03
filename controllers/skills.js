@@ -184,6 +184,23 @@ const getIncomingRequest = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+const getIncomingRequestCount = async (req, res) => {
+  try {
+    const userID = req.user.userID;
+
+    const swaps = await Swap.find({
+      targetID: userID,
+      status: "pending",
+    });
+
+    const count = swaps.length;
+
+    return res.status(200).json({ count });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 const fetchInitiatorSkills = async (req, res) => {
   try {
@@ -304,6 +321,7 @@ module.exports = {
   deleteSkill,
   updateSwap,
   getIncomingRequest,
+  getIncomingRequestCount,
   fetchInitiatorSkills,
   acceptSwap,
   rejectSwap,
