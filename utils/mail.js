@@ -15,4 +15,17 @@ const sendOTPEmail = async (to, otp) => {
   });
 };
 
-module.exports = sendOTPEmail;
+const sendResetEmail = async (to, otp) => {
+  await resend.emails.send({
+    from: "Skill Swap <onboarding@resend.dev>",
+    to,
+    subject: "Reset your Skill Swap account password",
+    html: `
+      <p>Your otp to reset your account passowrd is </p>
+      <h2>${otp}</h2>
+      <p>This code is valid for 10 minutes.</p>
+    `,
+  });
+};
+
+module.exports = { sendOTPEmail, sendResetEmail };

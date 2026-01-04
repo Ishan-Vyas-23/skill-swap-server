@@ -3,7 +3,7 @@ const bcrypt = require(`bcryptjs`);
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const sendOTPEmail = require("../utils/mail");
+const { sendOTPEmail, sendResetEmail } = require("../utils/mail");
 
 const register = async (req, res) => {
   try {
@@ -175,9 +175,78 @@ const verifyOtp = async (req, res) => {
   }
 };
 
+const sendResetOtp = async (req, res) => {
+  try {
+    const { userEmail } = req.body;
+    const user = await User.findOne({ email: userEmail });
+    if (!user) {
+      return res.status(404).json({ message: "user not found" });
+    }
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
+
+    await sendResetEmail(userEmail, otp);
+
+    user.resetOtp = hashedOtp;
+    user.resetOtpExpiresAt = Date.now() + 10 * 60 * 1000;
+
+    await user.save();
+
+    return res.status(200).json({ message: "reset otp send to your email" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { userEmail, newPass, otp } = req.body;
+    if (!userEmail || !newPass || !otp) {
+      return res.status(400).json({ message: "Please provide all values" });
+    }
+    const user = await User.findOne({ email: userEmail });
+    if (!user) {
+      return res.status(404).json({ message: "user not found" });
+    }
+
+    if (!user.resetOtp || !user.resetOtpExpiresAt) {
+      return res
+        .status(400)
+        .json({ message: "OTP not found. Please try again." });
+    }
+
+    if (user.resetOtpExpiresAt < Date.now()) {
+      return res
+        .status(400)
+        .json({ message: "OTP expired. Please try again." });
+    }
+
+    const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
+    if (hashedOtp !== user.resetOtp) {
+      return res.status(400).json({ message: "Incorrect OTP" });
+    }
+
+    const hashedPass = await bcrypt.hash(newPass, 10);
+
+    user.password = hashedPass;
+    user.resetOtp = undefined;
+    user.resetOtpExpiresAt = undefined;
+    await user.save();
+
+    return res.status(200).json({ message: "password reset succesfull" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   register,
   login,
   userStats,
   verifyOtp,
+  sendResetOtp,
+  resetPassword,
 };
