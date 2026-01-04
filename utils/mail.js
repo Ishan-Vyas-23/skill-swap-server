@@ -1,11 +1,16 @@
-const { Resend } = require("resend");
+const sgMail = require("@sendgrid/mail");
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+const FROM = {
+  email: process.env.SENDGRID_FROM_EMAIL,
+  name: "Skill Swap",
+};
 
 const sendOTPEmail = async (to, otp) => {
-  await resend.emails.send({
-    from: "Skill Swap <onboarding@resend.dev>",
+  await sgMail.send({
     to,
+    from: FROM,
     subject: "Verify your Skill Swap account",
     html: `
       <p>Your verification code is:</p>
@@ -16,12 +21,12 @@ const sendOTPEmail = async (to, otp) => {
 };
 
 const sendResetEmail = async (to, otp) => {
-  await resend.emails.send({
-    from: "Skill Swap <onboarding@resend.dev>",
+  await sgMail.send({
     to,
+    from: FROM,
     subject: "Reset your Skill Swap account password",
     html: `
-      <p>Your otp to reset your account passowrd is </p>
+      <p>Your OTP to reset your account password is:</p>
       <h2>${otp}</h2>
       <p>This code is valid for 10 minutes.</p>
     `,
